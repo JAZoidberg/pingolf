@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 
+const playerRoutes = require("./modules/players/player.routes");
+
 const app = express();
 
 app.use(cors());
@@ -13,5 +15,6 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-module.exports = app;
+app.use("/api/players", playerRoutes);
 
+module.exports = app;
