@@ -6,6 +6,7 @@ const machineRoutes = require("./modules/machines/machine.routes");
 const locationRoutes = require("./modules/locations/location.routes");
 const resultRoutes = require("./modules/results/result.routes");
 const statisticsRoutes = require("./modules/statistics/statistics.routes");
+const targetRoutes = require("./modules/targets/target.routes");
 
 const app = express();
 
@@ -24,5 +25,6 @@ app.use("/api/machines", machineRoutes);
 app.use("/api/locations", locationRoutes);
 app.use("/api/results", resultRoutes);
 app.use("/api/statistics", statisticsRoutes);
+app.use("/api/targets", targetRoutes);
 
 module.exports = app;
