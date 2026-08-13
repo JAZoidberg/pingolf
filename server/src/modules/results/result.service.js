@@ -82,8 +82,31 @@ const getResultById = async (resultId) => {
     .populate("location", "name city state");
 };
 
+const getRawScores = async (filters = {}) => {
+  const query = {};
+
+  if (filters.playerId) {
+    query.player = filters.playerId;
+  }
+
+  if (filters.machineId) {
+    query.machine = filters.machineId;
+  }
+
+  if (filters.locationId) {
+    query.location = filters.locationId;
+  }
+
+  const results = await Result.find(query)
+    .select("rawScore")
+    .lean();
+
+  return results.map((result) => result.rawScore);
+};
+
 module.exports = {
   createResult,
   getResults,
   getResultById,
+  getRawScores,
 };
