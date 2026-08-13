@@ -4,6 +4,7 @@ const cors = require("cors");
 const playerRoutes = require("./modules/players/player.routes");
 const machineRoutes = require("./modules/machines/machine.routes");
 const locationRoutes = require("./modules/locations/location.routes");
+const resultRoutes = require("./modules/results/result.routes");
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.get("/api/health", (req, res) => {
 app.use("/api/players", playerRoutes);
 app.use("/api/machines", machineRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/results", resultRoutes);
 
 module.exports = app;
