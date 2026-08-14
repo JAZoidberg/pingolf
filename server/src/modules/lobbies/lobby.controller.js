@@ -86,7 +86,8 @@ const configureLobby = async (req, res) => {
       locationId,
       machineIds,
       timeLimitMinutes,
-      maxStrokes,
+      ballsAllowed,
+      missPenaltyStrokes,
     } = req.body;
 
     if (!hostPlayerId || !locationId) {
@@ -102,7 +103,8 @@ const configureLobby = async (req, res) => {
         locationId,
         machineIds,
         timeLimitMinutes,
-        maxStrokes,
+        ballsAllowed,
+    	missPenaltyStrokes,
       }
     );
 

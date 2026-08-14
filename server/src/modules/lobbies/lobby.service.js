@@ -113,7 +113,8 @@ const configureLobby = async (
     locationId,
     machineIds,
     timeLimitMinutes,
-    maxStrokes,
+    ballsAllowed,
+    missPenaltyStrokes,
   }
 ) => {
   const lobby = await Lobby.findOne({
@@ -179,8 +180,12 @@ const configureLobby = async (
     lobby.settings.timeLimitMinutes = null;
   }
 
-  if (maxStrokes !== undefined) {
-    lobby.settings.maxStrokes = maxStrokes;
+  if (ballsAllowed !== undefined) {
+    lobby.settings.ballsAllowed = ballsAllowed;
+  }
+
+  if (missPenaltyStrokes !== undefined) {
+    lobby.settings.missPenaltyStrokes = missPenaltyStrokes;
   }
 
   await lobby.save();

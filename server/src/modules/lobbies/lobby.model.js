@@ -14,6 +14,11 @@ const holeSchema = new mongoose.Schema(
       min: 1,
     },
 
+    scoringType: {
+      type: String,
+      default: "scoreTarget",
+    },
+
     targetScore: {
       type: Number,
       min: 0,
@@ -67,10 +72,16 @@ const lobbySchema = new mongoose.Schema(
         default: null,
       },
 
-      maxStrokes: {
+      ballsAllowed: {
         type: Number,
         min: 1,
-        default: 5,
+        default: 3,
+      },
+
+      missPenaltyStrokes: {
+       type: Number,
+       min: 0,
+       default: 1,
       },
     },
 

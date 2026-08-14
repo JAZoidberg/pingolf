@@ -8,6 +8,7 @@ const resultRoutes = require("./modules/results/result.routes");
 const statisticsRoutes = require("./modules/statistics/statistics.routes");
 const targetRoutes = require("./modules/targets/target.routes");
 const lobbyRoutes = require("./modules/lobbies/lobby.routes");
+const scoringRoutes = require("./modules/scoring/scoring.routes");
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use("/api/results", resultRoutes);
 app.use("/api/statistics", statisticsRoutes);
 app.use("/api/targets", targetRoutes);
 app.use("/api/lobbies", lobbyRoutes);
+app.use("/api/scoring", scoringRoutes);
 
 module.exports = app;
