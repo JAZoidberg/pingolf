@@ -11,6 +11,8 @@ router.post("/:code/join", lobbyController.joinLobby);
 
 router.put("/:code/setup", lobbyController.configureLobby);
 
+router.patch("/:code/holes/:holeId/target", lobbyController.updateHoleTarget);
+
 router.post("/:code/start", lobbyController.startLobby);
 
 module.exports = router;

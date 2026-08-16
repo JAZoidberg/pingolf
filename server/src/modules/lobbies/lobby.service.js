@@ -206,6 +206,59 @@ const configureLobby = async (
   return await getLobbyByCode(lobby.code);
 };
 
+const updateHoleTarget = async (
+  code,
+  holeId,
+  hostPlayerId,
+  targetScore
+) => {
+  const lobby = await Lobby.findOne({
+    code: code.toUpperCase(),
+  });
+
+  if (!lobby) {
+    throw createServiceError("Lobby not found", 404);
+  }
+
+  if (
+    lobby.hostPlayer.toString() !==
+    hostPlayerId.toString()
+  ) {
+    throw createServiceError(
+      "Only the lobby host can change hole targets",
+      403
+    );
+  }
+
+  if (lobby.status !== "waiting") {
+    throw createServiceError(
+      "Hole targets cannot be changed after play begins"
+    );
+  }
+
+  if (
+    typeof targetScore !== "number" ||
+    !Number.isFinite(targetScore) ||
+    targetScore <= 0
+  ) {
+    throw createServiceError(
+      "targetScore must be a positive number"
+    );
+  }
+
+  const hole = lobby.holes.id(holeId);
+
+  if (!hole) {
+    throw createServiceError("Hole not found", 404);
+  }
+
+  hole.targetScore = targetScore;
+
+  await lobby.save();
+
+  return await getLobbyByCode(lobby.code);
+};
+
 const startLobby = async (code, hostPlayerId) => {
   const lobby = await Lobby.findOne({
     code: code.toUpperCase(),
@@ -238,6 +291,21 @@ const startLobby = async (code, hostPlayerId) => {
     );
   }
 
+  const holesMissingTargets = lobby.holes.filter(
+    (hole) =>
+      hole.scoringType === "scoreTarget" &&
+      (
+        typeof hole.targetScore !== "number" ||
+        hole.targetScore <= 0
+      )
+  );
+
+  if (holesMissingTargets.length > 0) {
+    throw createServiceError(
+      "Every score-target hole must have a target score before starting"
+    );
+  }
+
   lobby.status = "playing";
   lobby.startedAt = new Date();
 
@@ -258,5 +326,6 @@ module.exports = {
   getLobbyByCode,
   joinLobby,
   configureLobby,
+  updateHoleTarget,
   startLobby,
 };

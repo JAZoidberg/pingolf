@@ -114,6 +114,36 @@ const configureLobby = async (req, res) => {
   }
 };
 
+const updateHoleTarget = async (req, res) => {
+  try {
+    const { hostPlayerId, targetScore } = req.body;
+
+    if (!hostPlayerId) {
+      return res.status(400).json({
+        error: "hostPlayerId is required",
+      });
+    }
+
+    if (targetScore === undefined) {
+      return res.status(400).json({
+        error: "targetScore is required",
+      });
+    }
+
+    const lobby =
+      await lobbyService.updateHoleTarget(
+        req.params.code,
+        req.params.holeId,
+        hostPlayerId,
+        targetScore
+      );
+
+    res.json(lobby);
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
 const startLobby = async (req, res) => {
   try {
     const { hostPlayerId } = req.body;
@@ -140,5 +170,6 @@ module.exports = {
   getLobby,
   joinLobby,
   configureLobby,
+  updateHoleTarget,
   startLobby,
 };
