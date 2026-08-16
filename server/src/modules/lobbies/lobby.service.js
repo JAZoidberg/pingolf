@@ -5,6 +5,7 @@ const Lobby = require("./lobby.model");
 const playerService = require("../players/player.service");
 const machineService = require("../machines/machine.service");
 const locationService = require("../locations/location.service");
+const targetService = require("../targets/target.service");
 
 const CODE_CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 6;
@@ -165,11 +166,23 @@ const configureLobby = async (
 
   lobby.location = locationId;
 
-  lobby.holes = machineIds.map((machineId, index) => ({
-    machine: machineId,
-    order: index + 1,
-    targetScore: null,
-  }));
+  lobby.holes = await Promise.all(
+  machineIds.map(async (machineId, index) => {
+    const targetSuggestion =
+      await targetService.getTargetSuggestion(
+        machineId,
+        locationId
+      );
+
+    return {
+      machine: machineId,
+      order: index + 1,
+      scoringType: "scoreTarget",
+      targetScore:
+        targetSuggestion.recommendation.suggestedTarget,
+    };
+  })
+);
 
   if (
     timeLimitMinutes !== undefined &&
