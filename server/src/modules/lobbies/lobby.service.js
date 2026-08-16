@@ -6,6 +6,8 @@ const playerService = require("../players/player.service");
 const machineService = require("../machines/machine.service");
 const locationService = require("../locations/location.service");
 const targetService = require("../targets/target.service");
+const scoringService = require("../scoring/scoring.service");
+const resultService = require("../results/result.service");
 
 const CODE_CHARACTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 6;
@@ -321,6 +323,95 @@ const startLobby = async (code, hostPlayerId) => {
   return await getLobbyByCode(lobby.code);
 };
 
+const submitHoleScore = async (
+  code,
+  holeId,
+  {
+    playerId,
+    ballScores,
+  }
+) => {
+  const lobby = await Lobby.findOne({
+    code: code.toUpperCase(),
+  });
+
+  if (!lobby) {
+    throw createServiceError("Lobby not found", 404);
+  }
+
+  if (lobby.status !== "playing") {
+    throw createServiceError(
+      "Scores can only be submitted while the lobby is playing"
+    );
+  }
+
+  const playerIsInLobby = lobby.players.some(
+    (id) => id.toString() === playerId.toString()
+  );
+
+  if (!playerIsInLobby) {
+    throw createServiceError(
+      "Player is not part of this lobby",
+      403
+    );
+  }
+
+  const hole = lobby.holes.id(holeId);
+
+  if (!hole) {
+    throw createServiceError("Hole not found", 404);
+  }
+
+  const existingResult =
+    await resultService.getLobbyHoleResult(
+      lobby._id,
+      hole._id,
+      playerId
+    );
+
+  if (existingResult) {
+    throw createServiceError(
+      "Player has already completed this hole",
+      409
+    );
+  }
+
+  const scoringResult =
+    scoringService.calculateHoleScore({
+      scoringType: hole.scoringType,
+      targetScore: hole.targetScore,
+      ballScores,
+      ballsAllowed: lobby.settings.ballsAllowed,
+      missPenaltyStrokes:
+        lobby.settings.missPenaltyStrokes,
+    });
+
+  if (scoringResult.status === "in_progress") {
+    return {
+      scoring: scoringResult,
+      result: null,
+    };
+  }
+
+  const result = await resultService.createResult({
+    playerId,
+    machineId: hole.machine,
+    locationId: lobby.location,
+    lobbyId: lobby._id,
+    holeId: hole._id,
+    scoringType: hole.scoringType,
+    targetScore: hole.targetScore,
+    rawScore: scoringResult.rawScore,
+    ballsPlayed: scoringResult.ballsPlayed,
+    strokes: scoringResult.strokes,
+  });
+
+  return {
+    scoring: scoringResult,
+    result,
+  };
+};
+
 module.exports = {
   createLobby,
   getLobbyByCode,
@@ -328,4 +419,5 @@ module.exports = {
   configureLobby,
   updateHoleTarget,
   startLobby,
+  submitHoleScore,
 };

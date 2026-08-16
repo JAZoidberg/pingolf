@@ -23,6 +23,29 @@ const resultSchema = new mongoose.Schema(
       index: true,
     },
 
+    lobby: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Lobby",
+      default: null,
+      index: true,
+    },
+
+    holeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+
+    scoringType: {
+      type: String,
+      default: null,
+    },
+
+    targetScore: {
+      type: Number,
+      min: 0,
+      default: null,
+    },
+
     rawScore: {
       type: Number,
       required: true,
@@ -50,8 +73,22 @@ const resultSchema = new mongoose.Schema(
   }
 );
 
-resultSchema.index({ player: 1, playedAt: -1 });
-resultSchema.index({ machine: 1, location: 1, playedAt: -1 });
+resultSchema.index({ 
+  player: 1, 
+  playedAt: -1 
+});
+
+resultSchema.index({ 
+  machine: 1, 
+  location: 1, 
+  playedAt: -1 
+});
+
+resultSchema.index({ 
+  lobby: 1,
+  holeId: 1,
+  player: 1,
+});
 
 const Result = mongoose.model("Result", resultSchema);
 

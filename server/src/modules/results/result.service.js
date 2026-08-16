@@ -16,6 +16,10 @@ const createResult = async (resultData) => {
     playerId,
     machineId,
     locationId,
+    lobbyId,
+    holeId,
+    scoringType,
+    targetScore,
     rawScore,
     ballsPlayed,
     strokes,
@@ -44,6 +48,10 @@ const createResult = async (resultData) => {
     player: playerId,
     machine: machineId,
     location: locationId,
+    lobby: lobbyId,
+    holeId,
+    scoringType,
+    targetScore,
     rawScore,
     ballsPlayed,
     strokes,
@@ -104,9 +112,22 @@ const getRawScores = async (filters = {}) => {
   return results.map((result) => result.rawScore);
 };
 
+const getLobbyHoleResult = async (
+  lobbyId,
+  holeId,
+  playerId
+) => {
+  return await Result.findOne({
+    lobby: lobbyId,
+    holeId,
+    player: playerId,
+  });
+};
+
 module.exports = {
   createResult,
   getResults,
   getResultById,
   getRawScores,
+  getLobbyHoleResult,
 };

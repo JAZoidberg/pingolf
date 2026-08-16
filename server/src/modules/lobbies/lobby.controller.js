@@ -165,6 +165,41 @@ const startLobby = async (req, res) => {
   }
 };
 
+const submitHoleScore = async (req, res) => {
+  try {
+    const {
+      playerId,
+      ballScores,
+    } = req.body;
+
+    if (!playerId) {
+      return res.status(400).json({
+        error: "playerId is required",
+      });
+    }
+
+    if (!Array.isArray(ballScores)) {
+      return res.status(400).json({
+        error: "ballScores must be an array",
+      });
+    }
+
+    const result =
+      await lobbyService.submitHoleScore(
+        req.params.code,
+        req.params.holeId,
+        {
+          playerId,
+          ballScores,
+        }
+      );
+
+    res.json(result);
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
 module.exports = {
   createLobby,
   getLobby,
@@ -172,4 +207,5 @@ module.exports = {
   configureLobby,
   updateHoleTarget,
   startLobby,
+  submitHoleScore,
 };
