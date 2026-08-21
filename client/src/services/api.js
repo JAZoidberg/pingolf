@@ -61,3 +61,65 @@ export const joinLobby = (
 export const getLobby = (code) => {
   return request(`/lobbies/${code}`);
 };
+
+export const getLocations = () => {
+  return request("/locations");
+};
+
+export const getMachines = () => {
+  return request("/machines");
+};
+
+export const configureLobby = (
+  code,
+  {
+    hostPlayerId,
+    locationId,
+    machineIds,
+    timeLimitMinutes,
+    ballsAllowed,
+    missPenaltyStrokes,
+  }
+) => {
+  return request(`/lobbies/${code}/setup`, {
+    method: "PUT",
+    body: JSON.stringify({
+      hostPlayerId,
+      locationId,
+      machineIds,
+      timeLimitMinutes,
+      ballsAllowed,
+      missPenaltyStrokes,
+    }),
+  });
+};
+
+export const updateHoleTarget = (
+  code,
+  holeId,
+  hostPlayerId,
+  targetScore
+) => {
+  return request(
+    `/lobbies/${code}/holes/${holeId}/target`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        hostPlayerId,
+        targetScore,
+      }),
+    }
+  );
+};
+
+export const startLobby = (
+  code,
+  hostPlayerId
+) => {
+  return request(`/lobbies/${code}/start`, {
+    method: "POST",
+    body: JSON.stringify({
+      hostPlayerId,
+    }),
+  });
+};

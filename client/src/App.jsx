@@ -6,6 +6,7 @@ import {
 import PlayerSelector from "./components/PlayerSelector";
 import LobbyActions from "./components/LobbyActions";
 import LobbySummary from "./components/LobbySummary";
+import LobbySetup from "./components/LobbySetup";
 
 import {
   getPlayers,
@@ -153,10 +154,54 @@ function App() {
       )}
 
       {lobby && (
-        <LobbySummary
+  <div className="lobby-view">
+    <LobbySummary
+      lobby={lobby}
+    />
+
+    {lobby.status === "waiting" &&
+      lobby.hostPlayer?._id ===
+        selectedPlayerId && (
+        <LobbySetup
           lobby={lobby}
+          selectedPlayerId={
+            selectedPlayerId
+          }
+          onLobbyUpdate={
+            setLobby
+          }
         />
       )}
+
+    {lobby.status === "waiting" &&
+      lobby.hostPlayer?._id !==
+        selectedPlayerId && (
+        <section className="card">
+          <h2>
+            Waiting for Host
+          </h2>
+
+          <p>
+            The host is setting up
+            the course.
+          </p>
+        </section>
+      )}
+
+    {lobby.status === "playing" && (
+      <section className="card">
+        <h2>
+          Round Started!
+        </h2>
+
+        <p>
+          The play screen comes
+          next.
+        </p>
+      </section>
+    )}
+  </div>
+)}
     </main>
   );
 }
