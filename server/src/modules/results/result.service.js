@@ -128,10 +128,17 @@ const getLobbyHoleResult = async (
   });
 };
 
+const countLobbyResults = async (lobbyId) => {
+  return await Result.countDocuments({
+    lobby: lobbyId,
+  });
+};
+
 module.exports = {
   createResult,
   getResults,
   getResultById,
   getRawScores,
   getLobbyHoleResult,
+  countLobbyResults,
 };

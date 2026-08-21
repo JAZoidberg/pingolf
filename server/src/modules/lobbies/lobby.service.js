@@ -19,6 +19,35 @@ const createServiceError = (message, statusCode = 400) => {
   return error;
 };
 
+const markLobbyFinished = async (lobby) => {
+  lobby.status = "finished";
+  lobby.finishedAt = new Date();
+
+  await lobby.save();
+};
+
+const maybeFinishLobby = async (lobby) => {
+  const expectedResults =
+    lobby.players.length * lobby.holes.length;
+
+  if (expectedResults === 0) {
+    return false;
+  }
+
+  const completedResults =
+    await resultService.countLobbyResults(
+      lobby._id
+    );
+
+  if (completedResults < expectedResults) {
+    return false;
+  }
+
+  await markLobbyFinished(lobby);
+
+  return true;
+};
+
 const generateCode = () => {
   let code = "";
 
@@ -443,6 +472,46 @@ const startLobby = async (code, hostPlayerId) => {
   return await getLobbyByCode(lobby.code);
 };
 
+const finishLobby = async (
+  code,
+  hostPlayerId
+) => {
+  const lobby = await Lobby.findOne({
+    code: code.toUpperCase(),
+  });
+
+  if (!lobby) {
+    throw createServiceError(
+      "Lobby not found",
+      404
+    );
+  }
+
+  if (
+    lobby.hostPlayer.toString() !==
+    hostPlayerId.toString()
+  ) {
+    throw createServiceError(
+      "Only the lobby host can finish the lobby",
+      403
+    );
+  }
+
+  if (lobby.status === "waiting") {
+    throw createServiceError(
+      "Lobby must be started before it can be finished"
+    );
+  }
+
+  if (lobby.status === "finished") {
+    return await getLobbyByCode(lobby.code);
+  }
+
+  await markLobbyFinished(lobby);
+
+  return await getLobbyByCode(lobby.code);
+};
+
 const submitHoleScore = async (
   code,
   holeId,
@@ -514,22 +583,27 @@ const submitHoleScore = async (
   }
 
   const result = await resultService.createResult({
-    playerId,
-    machineId: hole.machine,
-    locationId: lobby.location,
-    lobbyId: lobby._id,
-    holeId: hole._id,
-    scoringType: hole.scoringType,
-    targetScore: hole.targetScore,
-    rawScore: scoringResult.rawScore,
-    ballsPlayed: scoringResult.ballsPlayed,
-    strokes: scoringResult.strokes,
-  });
+  playerId,
+  machineId: hole.machine,
+  locationId: lobby.location,
+  lobbyId: lobby._id,
+  holeId: hole._id,
+  scoringType: hole.scoringType,
+  targetScore: hole.targetScore,
+  rawScore: scoringResult.rawScore,
+  ballsPlayed: scoringResult.ballsPlayed,
+  strokes: scoringResult.strokes,
+});
 
-  return {
-    scoring: scoringResult,
-    result,
-  };
+const roundFinished =
+  await maybeFinishLobby(lobby);
+
+return {
+  scoring: scoringResult,
+  result,
+  roundFinished,
+  lobbyStatus: lobby.status,
+};
 };
 
 module.exports = {
@@ -540,5 +614,6 @@ module.exports = {
   configureLobby,
   updateHoleTarget,
   startLobby,
+  finishLobby,
   submitHoleScore,
 };

@@ -17,6 +17,8 @@ router.patch("/:code/holes/:holeId/target", lobbyController.updateHoleTarget);
 
 router.post("/:code/start", lobbyController.startLobby);
 
+router.post("/:code/finish", lobbyController.finishLobby);
+
 router.post("/:code/holes/:holeId/score",lobbyController.submitHoleScore);
 
 module.exports = router;

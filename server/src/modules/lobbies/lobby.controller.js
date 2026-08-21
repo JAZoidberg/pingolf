@@ -178,6 +178,28 @@ const startLobby = async (req, res) => {
   }
 };
 
+const finishLobby = async (req, res) => {
+  try {
+    const { hostPlayerId } = req.body;
+
+    if (!hostPlayerId) {
+      return res.status(400).json({
+        error: "hostPlayerId is required",
+      });
+    }
+
+    const lobby =
+      await lobbyService.finishLobby(
+        req.params.code,
+        hostPlayerId
+      );
+
+    res.json(lobby);
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
 const submitHoleScore = async (req, res) => {
   try {
     const {
@@ -221,5 +243,6 @@ module.exports = {
   configureLobby,
   updateHoleTarget,
   startLobby,
+  finishLobby,
   submitHoleScore,
 };
