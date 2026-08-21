@@ -19,11 +19,36 @@ const createServiceError = (message, statusCode = 400) => {
   return error;
 };
 
-const markLobbyFinished = async (lobby) => {
+const markLobbyFinished = async (
+  lobby,
+  finishedAt = new Date()
+) => {
   lobby.status = "finished";
-  lobby.finishedAt = new Date();
+  lobby.finishedAt = finishedAt;
 
   await lobby.save();
+};
+
+const finishLobbyIfExpired = async (lobby) => {
+  if (
+    lobby.status !== "playing" ||
+    !lobby.endsAt
+  ) {
+    return false;
+  }
+
+  const now = new Date();
+
+  if (now < lobby.endsAt) {
+    return false;
+  }
+
+  await markLobbyFinished(
+    lobby,
+    lobby.endsAt
+  );
+
+  return true;
 };
 
 const maybeFinishLobby = async (lobby) => {
@@ -80,11 +105,19 @@ const populateLobby = (query) => {
 };
 
 const getLobbyByCode = async (code) => {
-  return await populateLobby(
+  const lobby = await populateLobby(
     Lobby.findOne({
       code: code.toUpperCase(),
     })
   );
+
+  if (!lobby) {
+    return null;
+  }
+
+  await finishLobbyIfExpired(lobby);
+
+  return lobby;
 };
 
 const getLobbyStandings = async (code) => {
@@ -526,6 +559,16 @@ const submitHoleScore = async (
 
   if (!lobby) {
     throw createServiceError("Lobby not found", 404);
+  }
+
+  const expired =
+    await finishLobbyIfExpired(lobby);
+
+  if (expired) {
+    throw createServiceError(
+      "Lobby time limit has expired",
+      409
+    );
   }
 
   if (lobby.status !== "playing") {
