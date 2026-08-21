@@ -58,6 +58,126 @@ const getLobbyByCode = async (code) => {
   );
 };
 
+const getLobbyStandings = async (code) => {
+  const lobby = await getLobbyByCode(code);
+
+  if (!lobby) {
+    throw createServiceError("Lobby not found", 404);
+  }
+
+  const results = await resultService.getResults({
+    lobbyId: lobby._id,
+  });
+
+  const holes = [...lobby.holes].sort(
+    (a, b) => a.order - b.order
+  );
+
+  const resultMap = new Map();
+
+  results.forEach((result) => {
+    if (!result.player || !result.holeId) {
+      return;
+    }
+
+    const key =
+      `${result.player._id.toString()}:` +
+      `${result.holeId.toString()}`;
+
+    resultMap.set(key, result);
+  });
+
+  const standings = lobby.players.map((player) => {
+    const playerId = player._id.toString();
+
+    const scorecard = holes.map((hole) => {
+      const key =
+        `${playerId}:${hole._id.toString()}`;
+
+      const result = resultMap.get(key);
+
+      return {
+        holeId: hole._id,
+        order: hole.order,
+
+        machine: {
+          id: hole.machine._id,
+          name: hole.machine.name,
+        },
+
+        targetScore: hole.targetScore,
+
+        completed: Boolean(result),
+
+        rawScore: result
+          ? result.rawScore
+          : null,
+
+        ballsPlayed: result
+          ? result.ballsPlayed
+          : null,
+
+        strokes: result
+          ? result.strokes
+          : null,
+      };
+    });
+
+    const completedHoles = scorecard.filter(
+      (hole) => hole.completed
+    );
+
+    const totalStrokes = completedHoles.reduce(
+      (total, hole) => total + hole.strokes,
+      0
+    );
+
+    return {
+      player: {
+        id: player._id,
+        displayName: player.displayName,
+      },
+
+      holesCompleted: completedHoles.length,
+      totalHoles: holes.length,
+
+      isComplete:
+        holes.length > 0 &&
+        completedHoles.length === holes.length,
+
+      totalStrokes,
+
+      scorecard,
+    };
+  });
+
+  standings.sort((a, b) => {
+    if (a.holesCompleted !== b.holesCompleted) {
+      return b.holesCompleted - a.holesCompleted;
+    }
+
+    return a.totalStrokes - b.totalStrokes;
+  });
+
+  return {
+    code: lobby.code,
+    status: lobby.status,
+
+    location: lobby.location
+      ? {
+          id: lobby.location._id,
+          name: lobby.location.name,
+          city: lobby.location.city,
+          state: lobby.location.state,
+        }
+      : null,
+
+    totalHoles: holes.length,
+
+    standings,
+  };
+};
+
 const createLobby = async ({ hostPlayerId }) => {
   const hostPlayer = await playerService.getPlayerById(hostPlayerId);
 
@@ -415,6 +535,7 @@ const submitHoleScore = async (
 module.exports = {
   createLobby,
   getLobbyByCode,
+  getLobbyStandings,
   joinLobby,
   configureLobby,
   updateHoleTarget,

@@ -7,6 +7,8 @@ router.post("/", lobbyController.createLobby);
 
 router.get("/:code", lobbyController.getLobby);
 
+router.get("/:code/standings", lobbyController.getLobbyStandings);
+
 router.post("/:code/join", lobbyController.joinLobby);
 
 router.put("/:code/setup", lobbyController.configureLobby);

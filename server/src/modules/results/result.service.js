@@ -76,6 +76,10 @@ const getResults = async (filters = {}) => {
     query.location = filters.locationId;
   }
 
+  if (filters.lobbyId) {
+    query.lobby = filters.lobbyId;
+  }
+
   return await Result.find(query)
     .populate("player", "displayName")
     .populate("machine", "name manufacturer year")

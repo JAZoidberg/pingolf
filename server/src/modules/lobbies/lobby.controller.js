@@ -58,6 +58,19 @@ const getLobby = async (req, res) => {
   }
 };
 
+const getLobbyStandings = async (req, res) => {
+  try {
+    const standings =
+      await lobbyService.getLobbyStandings(
+        req.params.code
+      );
+
+    res.json(standings);
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
 const joinLobby = async (req, res) => {
   try {
     const { playerId } = req.body;
@@ -203,6 +216,7 @@ const submitHoleScore = async (req, res) => {
 module.exports = {
   createLobby,
   getLobby,
+  getLobbyStandings,
   joinLobby,
   configureLobby,
   updateHoleTarget,
