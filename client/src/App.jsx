@@ -7,11 +7,13 @@ import PlayerSelector from "./components/PlayerSelector";
 import LobbyActions from "./components/LobbyActions";
 import LobbySummary from "./components/LobbySummary";
 import LobbySetup from "./components/LobbySetup";
+import RoundView from "./components/RoundView";
 
 import {
   getPlayers,
   createLobby,
   joinLobby,
+  getLobby,
 } from "./services/api";
 
 function App() {
@@ -104,6 +106,29 @@ function App() {
     }
   };
 
+  const handleRefreshLobby =
+    async () => {
+      if (!lobby) {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError("");
+
+        const updatedLobby =
+          await getLobby(
+            lobby.code
+          );
+
+        setLobby(updatedLobby);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+   };
+
   return (
     <main className="app">
       <header className="hero">
@@ -185,21 +210,33 @@ function App() {
             The host is setting up
             the course.
           </p>
+
+          <button
+            type="button"
+            onClick={
+              handleRefreshLobby
+            }
+            disabled={loading}
+          >
+            Refresh Lobby
+          </button>
         </section>
       )}
 
-    {lobby.status === "playing" && (
-      <section className="card">
-        <h2>
-          Round Started!
-        </h2>
-
-        <p>
-          The play screen comes
-          next.
-        </p>
-      </section>
-    )}
+    {(
+      lobby.status === "playing" ||
+      lobby.status === "finished"
+    ) && (
+      <RoundView
+        lobby={lobby}
+        selectedPlayerId={
+          selectedPlayerId
+        }
+        onLobbyUpdate={
+          setLobby
+        }
+      />
+    )} 
   </div>
 )}
     </main>

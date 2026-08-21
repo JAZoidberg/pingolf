@@ -322,3 +322,158 @@ p {
     width: 100%;
   }
 }
+
+.play-card {
+  text-align: center;
+}
+
+.hole-label {
+  margin-bottom: 0.35rem;
+
+  color: #9298a5;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.play-card h2 {
+  margin-bottom: 1.5rem;
+
+  font-size: 2rem;
+}
+
+.target-label {
+  margin-bottom: 0.25rem;
+
+  color: #9298a5;
+
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.target-number {
+  margin-bottom: 1rem;
+
+  font-size: clamp(
+    2rem,
+    8vw,
+    3.5rem
+  );
+
+  font-weight: 800;
+}
+
+.score-form {
+  margin-top: 1.5rem;
+
+  text-align: left;
+}
+
+.ball-history {
+  display: grid;
+
+  gap: 0.5rem;
+
+  margin-top: 1.25rem;
+}
+
+.ball-score {
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  padding: 0.7rem 0.8rem;
+
+  border-radius: 8px;
+
+  background: #14171d;
+}
+
+.ball-score span {
+  color: #9298a5;
+}
+
+.success-message {
+  margin-top: 1rem;
+
+  padding: 0.85rem 1rem;
+
+  border-radius: 10px;
+
+  background: #1e422b;
+  color: #c9f7d5;
+}
+
+.section-heading {
+  display: flex;
+
+  align-items: center;
+  justify-content:
+    space-between;
+
+  gap: 1rem;
+
+  margin-bottom: 1rem;
+}
+
+.section-heading h2 {
+  margin: 0;
+}
+
+.section-heading .refresh-button {
+  width: auto;
+  margin: 0;
+
+  padding: 0.55rem 0.8rem;
+
+  background: #303541;
+  color: #ffffff;
+}
+
+.standings-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.standing-row {
+  display: flex;
+
+  align-items: center;
+  justify-content:
+    space-between;
+
+  gap: 1rem;
+
+  padding: 0.85rem;
+
+  border: 1px solid #30343e;
+  border-radius: 10px;
+
+  background: #15181e;
+}
+
+.standing-row > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.standing-row span {
+  color: #9298a5;
+
+  font-size: 0.85rem;
+}
+
+.standing-row.current-player {
+  border-color: #f5b82e;
+}
+
+.finished-card {
+  text-align: center;
+}
+
+.finished-card h2 {
+  margin-bottom: 0.5rem;
+}

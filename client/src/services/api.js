@@ -123,3 +123,29 @@ export const startLobby = (
     }),
   });
 };
+
+export const getLobbyStandings = (
+  code
+) => {
+  return request(
+    `/lobbies/${code}/standings`
+  );
+};
+
+export const submitHoleScore = (
+  code,
+  holeId,
+  playerId,
+  ballScores
+) => {
+  return request(
+    `/lobbies/${code}/holes/${holeId}/score`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        playerId,
+        ballScores,
+      }),
+    }
+  );
+};
